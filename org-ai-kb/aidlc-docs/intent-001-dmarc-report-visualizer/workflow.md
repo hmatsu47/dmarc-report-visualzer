@@ -1,0 +1,12 @@
+# Inception phase
+requirements-analysis org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/intent.md
+user-stories org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/requirements-analysis/requirements.md
+application-design org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/requirements-analysis/requirements.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/user-stories/stories.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/user-stories/personas.md
+units-generation org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/application-design/components.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/application-design/services.md
+
+# Construction phase — unit: dmarc-report-visualizer
+functional-design --unit dmarc-report-visualizer org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/units-generation/units-of-work.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/user-stories/stories.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/application-design/components.md
+nfr-assessment --unit dmarc-report-visualizer org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/units-generation/units-of-work.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/inception/requirements-analysis/requirements.md
+nfr-design --unit dmarc-report-visualizer org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/nfr-assessment/nfr-requirements.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/nfr-assessment/tech-stack-decisions.md
+infrastructure-design --unit dmarc-report-visualizer org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/nfr-design/nfr-design-patterns.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/functional-design/domain-entities.md
+code-generation --unit dmarc-report-visualizer org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/functional-design/business-rules.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/infrastructure-design/infrastructure-design.md org-ai-kb/aidlc-docs/intent-001-dmarc-report-visualizer/construction/dmarc-report-visualizer/nfr-design/nfr-design-patterns.md

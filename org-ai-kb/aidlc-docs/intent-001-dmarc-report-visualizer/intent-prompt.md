@@ -1,0 +1,9 @@
+# Intent Prompt
+
+AI-DLCを使って、DMARCレポートの受信・可視化ツールを作りたい
+
+SESで受信してS3にDMARCレポートメールを保管、Lambdaで添付ファイルのXMLを解析して何らかの可視化ツールでグラフ化。Lambdaの解析コードは https://github.com/jhblee-aws/serverless-mail/tree/main/lambda-email-parser を参考にしつつGmailなどのレポートファイルを復元できるようZIP形式にも対応する。S3バケット名は一意になるようサフィックスとしてULIDを追加。いろいろなAWSアカウントにデプロイできるようCDKでIaC化するとともにARNなど識別子の指定はパラメータを使って行う。
+
+可視化ツールはAmazon Managed Grafanaを採用。IAM Identity Center連携で認証。ロールを分けて認可する機能を区別する必要なし。ユーザーはDMARCの基礎知識を持つエンジニア5名程度。
+
+Lambdaの役割はXML/ZIPパース → Athena用にParquet変換してS3に出力。参考コードからの変更点として適宜修正する。

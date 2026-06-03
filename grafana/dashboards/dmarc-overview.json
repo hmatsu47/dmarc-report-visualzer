@@ -1,0 +1,75 @@
+{
+  "title": "DMARC Report Overview",
+  "uid": "dmarc-overview",
+  "timezone": "utc",
+  "refresh": "1h",
+  "time": { "from": "now-30d", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Daily DMARC Results (Pass/Fail)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "grafana-athena-datasource", "uid": "" },
+      "targets": [
+        {
+          "rawSQL": "SELECT date_range_begin AS time, policy_evaluated_dkim AS dkim_result, SUM(count) AS total FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY date_range_begin, policy_evaluated_dkim ORDER BY date_range_begin",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Top Source IPs",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "grafana-athena-datasource", "uid": "" },
+      "targets": [
+        {
+          "rawSQL": "SELECT source_ip, SUM(count) AS total_messages, SUM(CASE WHEN policy_evaluated_dkim='pass' AND policy_evaluated_spf='pass' THEN count ELSE 0 END) AS pass_count, SUM(CASE WHEN policy_evaluated_dkim='fail' OR policy_evaluated_spf='fail' THEN count ELSE 0 END) AS fail_count FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip ORDER BY total_messages DESC LIMIT 50",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Reports by Organization",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "grafana-athena-datasource", "uid": "" },
+      "targets": [
+        {
+          "rawSQL": "SELECT org_name, COUNT(DISTINCT report_id) AS report_count, SUM(count) AS total_messages FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY org_name ORDER BY total_messages DESC LIMIT 20",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "SPF Results Breakdown",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "datasource": { "type": "grafana-athena-datasource", "uid": "" },
+      "targets": [
+        {
+          "rawSQL": "SELECT policy_evaluated_spf AS result, SUM(count) AS total FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY policy_evaluated_spf",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "DKIM Results Breakdown",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "datasource": { "type": "grafana-athena-datasource", "uid": "" },
+      "targets": [
+        {
+          "rawSQL": "SELECT policy_evaluated_dkim AS result, SUM(count) AS total FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY policy_evaluated_dkim",
+          "format": "table"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39
+}

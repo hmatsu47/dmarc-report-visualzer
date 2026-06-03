@@ -1,0 +1,21 @@
+{
+  "name": "dmarc-report-visualizer",
+  "version": "1.0.0",
+  "bin": {
+    "app": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.150.0",
+    "constructs": "^10.3.0",
+    "ulidx": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "~5.5.0",
+    "aws-cdk": "^2.150.0"
+  }
+}
