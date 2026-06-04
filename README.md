@@ -117,6 +117,6 @@ Grafana Workspaceにユーザーを割り当て:
 ## 技術スタック
 
 - **IaC**: AWS CDK v2 (TypeScript)
-- **Lambda**: Python 3.12 / arm64
+- **Lambda**: Python 3.14 / arm64
 - **データ**: S3 + Glue + Athena (Parquet/Snappy)
 - **可視化**: Amazon Managed Grafana + IAM Identity Center

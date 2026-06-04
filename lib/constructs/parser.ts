@@ -27,14 +27,14 @@ export class ParserConstruct extends Construct {
     // Layer: デプロイ前に `cd layer && pip install -r requirements.txt -t python` を実行しておくこと
     const parserLayer = new lambda.LayerVersion(this, "ParserLayer", {
       code: lambda.Code.fromAsset(path.join(__dirname, "../../layer")),
-      compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_14],
       compatibleArchitectures: [lambda.Architecture.ARM_64],
       description: "pyarrow and defusedxml for DMARC parser",
     });
 
     this.parserFunction = new lambda.Function(this, "ParserFunction", {
       functionName: "dmarc-report-parser",
-      runtime: lambda.Runtime.PYTHON_3_12,
+      runtime: lambda.Runtime.PYTHON_3_14,
       architecture: lambda.Architecture.ARM_64,
       handler: "lambda_function.handler",
       code: lambda.Code.fromAsset(path.join(__dirname, "../../lambda/parser")),
