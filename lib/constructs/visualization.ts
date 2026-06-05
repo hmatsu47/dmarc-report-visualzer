@@ -2,7 +2,11 @@ import { Construct } from "constructs";
 import * as grafana from "aws-cdk-lib/aws-grafana";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as cr from "aws-cdk-lib/custom-resources";
 import * as cdk from "aws-cdk-lib";
+import * as path from "path";
+import * as fs from "fs";
 
 export interface VisualizationConstructProps {
   athenaBucket: s3.IBucket;
@@ -72,6 +76,49 @@ export class VisualizationConstruct extends Construct {
       permissionType: "SERVICE_MANAGED",
       dataSources: ["ATHENA"],
       roleArn: this.grafanaRole.roleArn,
+    });
+
+    // ダッシュボードプロビジョナー
+    const provisionerFn = new lambda.Function(this, "ProvisionerFunction", {
+      runtime: lambda.Runtime.PYTHON_3_13,
+      architecture: lambda.Architecture.ARM_64,
+      handler: "index.on_event",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../../lambda/dashboard-provisioner")),
+      timeout: cdk.Duration.minutes(5),
+    });
+
+    provisionerFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "grafana:DescribeWorkspace",
+          "grafana:CreateWorkspaceServiceAccount",
+          "grafana:CreateWorkspaceServiceAccountToken",
+          "grafana:DeleteWorkspaceServiceAccount",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    const datasourceJson = fs.readFileSync(
+      path.join(__dirname, "../../grafana/datasources/athena.json"), "utf-8"
+    ).replace("${AWS_REGION}", cdk.Stack.of(this).region);
+
+    const dashboardJson = fs.readFileSync(
+      path.join(__dirname, "../../grafana/dashboards/dmarc-overview.json"), "utf-8"
+    );
+
+    const provider = new cr.Provider(this, "ProvisionerProvider", {
+      onEventHandler: provisionerFn,
+    });
+
+    new cdk.CustomResource(this, "DashboardProvisionerV2", {
+      serviceToken: provider.serviceToken,
+      properties: {
+        WorkspaceId: this.workspace.ref,
+        DatasourceJson: datasourceJson,
+        DashboardJson: dashboardJson,
+        Version: "3",
+      },
     });
   }
 }

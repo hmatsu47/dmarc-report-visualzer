@@ -1,6 +1,7 @@
 {
   "name": "Amazon Athena - DMARC",
   "type": "grafana-athena-datasource",
+  "uid": "dmarc-athena-ds",
   "access": "proxy",
   "jsonData": {
     "authType": "workspace-iam-role",
