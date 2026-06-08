@@ -62,7 +62,19 @@ npx cdk deploy \
 
 ## デプロイ後の手動手順
 
-### 1. MXレコード設定
+### 1. SESドメイン検証
+
+SESでメールを受信するには、受信ドメインの所有権を検証する必要があります。
+
+1. SESコンソールで「Verified identities」→「Create identity」を選択
+2. 「Domain」を選択し、受信ドメイン（例: `dmarc.example.com`）を入力
+3. 「Advanced DKIM settings」で「Easy DKIM」を選択（鍵長は「RSA_2048_BIT」推奨）
+4. 受信ドメインがRoute 53でホストされている場合、「Publish DNS records to Route 53」にチェックを入れる
+5. 「Create identity」をクリックすると、DKIMの3つのCNAMEレコードがRoute 53に自動登録される
+
+※ ステータスが「Verified」になるまで数分〜最大72時間かかる場合があります。
+
+### 2. MXレコード設定
 
 受信ドメインのDNSに以下を追加:
 
@@ -70,7 +82,7 @@ npx cdk deploy \
 受信ドメイン.  MX  10 inbound-smtp.<region>.amazonaws.com.
 ```
 
-### 2. DMARCレコード更新
+### 3. DMARCレコード更新
 
 監視対象ドメインのDNSに`rua`を追加:
 
@@ -78,11 +90,11 @@ npx cdk deploy \
 _dmarc.example.com.  TXT  "v=DMARC1; p=none; rua=mailto:dmarc@<receiveDomain>"
 ```
 
-### 3. SES Receipt Rule Set有効化
+### 4. SES Receipt Rule Set有効化
 
 新規アカウントの場合、SESコンソールで `DmarcReceiptRuleSet` をアクティブに設定。
 
-### 4. IAM Identity Centerユーザー割り当て
+### 5. IAM Identity Centerユーザー割り当て
 
 Grafana Workspaceにユーザーを割り当て:
 
