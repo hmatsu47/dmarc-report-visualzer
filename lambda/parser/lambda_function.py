@@ -1,5 +1,6 @@
 """DMARC Report Parser Lambda - S3メールからParquet変換"""
 import os
+import re
 import email
 import gzip
 import zipfile
@@ -245,9 +246,11 @@ def _write_parquet(records):
     year = dt.strftime("%Y")
     month = dt.strftime("%m")
     day = dt.strftime("%d")
+    org_name = records[0]["org_name"]
     report_id = records[0]["report_id"]
+    safe_org = re.sub(r'[^\w\-.]', '_', org_name or "unknown")
 
-    key = f"{OUTPUT_PREFIX}/year={year}/month={month}/day={day}/{report_id}.parquet"
+    key = f"{OUTPUT_PREFIX}/year={year}/month={month}/day={day}/{safe_org}__{report_id}.parquet"
 
     s3.put_object(Bucket=ATHENA_BUCKET, Key=key, Body=buf.getvalue())
     logger.info(json.dumps({"event": "dmarc.parquet.written", "key": key, "records_count": len(records)}))
