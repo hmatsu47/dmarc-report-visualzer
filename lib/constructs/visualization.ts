@@ -92,8 +92,6 @@ export class VisualizationConstruct extends Construct {
       new iam.PolicyStatement({
         actions: [
           "grafana:DescribeWorkspace",
-          "grafana:UpdateWorkspace",
-          "grafana:UpdateWorkspaceConfiguration",
           "grafana:CreateWorkspaceServiceAccount",
           "grafana:CreateWorkspaceServiceAccountToken",
           "grafana:DeleteWorkspaceServiceAccount",

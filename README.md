@@ -100,7 +100,21 @@ Grafana Workspaceにユーザーを割り当て:
 
 1. Amazon Managed Grafanaコンソールを開く
 2. `dmarc-dashboard` Workspaceを選択
-3. 「Assign new user or group」でユーザーを追加（Editor権限）
+3. 「Assign new user or group」でユーザーを追加（Admin権限）
+
+> **注意**: ワークスペースのバージョンアップ等により、ユーザーの権限が「閲覧者（Viewer）」にリセットされる場合があります。データソース設定やダッシュボードの編集ができない場合は、Managed Grafanaコンソールでユーザーの権限を「Admin」に変更してください。
+
+### 6. データソースとダッシュボードの有効化
+
+初回デプロイ後、Grafanaダッシュボードでデータソースを有効化する必要があります。
+
+1. Grafana Workspaceにログイン
+2. 左メニュー → **Connections** → **Data sources** を開く
+3. 「Amazon Athena - DMARC」をクリック
+4. Athena Detailsセクションで **Workgroup** に `dmarc-workgroup` を選択
+5. 「Save & Test」をクリックし、「Data source is working」が表示されることを確認
+6. 左メニュー → **Dashboards** → 「DMARC Report Overview」を開く
+7. 各パネルのデータが表示されない場合は、パネルをEditで開き「Run query」を実行後に保存
 
 ## ダッシュボード
 
