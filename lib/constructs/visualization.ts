@@ -36,13 +36,12 @@ export class VisualizationConstruct extends Construct {
           "athena:GetQueryResults",
           "athena:StopQueryExecution",
           "athena:GetWorkGroup",
+          "athena:ListWorkGroups",
+          "athena:ListDataCatalogs",
+          "athena:ListDatabases",
+          "athena:ListTableMetadata",
         ],
-        resources: [
-          cdk.Arn.format(
-            { service: "athena", resource: "workgroup", resourceName: props.athenaWorkgroupName },
-            cdk.Stack.of(this)
-          ),
-        ],
+        resources: ["*"],
       })
     );
 
@@ -76,6 +75,8 @@ export class VisualizationConstruct extends Construct {
       permissionType: "SERVICE_MANAGED",
       dataSources: ["ATHENA"],
       roleArn: this.grafanaRole.roleArn,
+      pluginAdminEnabled: true,
+      grafanaVersion: "12.4",
     });
 
     // ダッシュボードプロビジョナー
@@ -91,6 +92,8 @@ export class VisualizationConstruct extends Construct {
       new iam.PolicyStatement({
         actions: [
           "grafana:DescribeWorkspace",
+          "grafana:UpdateWorkspace",
+          "grafana:UpdateWorkspaceConfiguration",
           "grafana:CreateWorkspaceServiceAccount",
           "grafana:CreateWorkspaceServiceAccountToken",
           "grafana:DeleteWorkspaceServiceAccount",
@@ -101,7 +104,8 @@ export class VisualizationConstruct extends Construct {
 
     const datasourceJson = fs.readFileSync(
       path.join(__dirname, "../../grafana/datasources/athena.json"), "utf-8"
-    ).replace("${AWS_REGION}", cdk.Stack.of(this).region);
+    ).replaceAll("${AWS_REGION}", cdk.Stack.of(this).region)
+     .replace("${RESULTS_BUCKET}", props.athenaResultsBucket.bucketName);
 
     const dashboardJson = fs.readFileSync(
       path.join(__dirname, "../../grafana/dashboards/dmarc-overview.json"), "utf-8"
@@ -117,7 +121,7 @@ export class VisualizationConstruct extends Construct {
         WorkspaceId: this.workspace.ref,
         DatasourceJson: datasourceJson,
         DashboardJson: dashboardJson,
-        Version: "3",
+        Version: "17",
       },
     });
   }

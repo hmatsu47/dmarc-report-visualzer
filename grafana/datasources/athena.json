@@ -6,8 +6,10 @@
   "jsonData": {
     "authType": "workspace-iam-role",
     "defaultRegion": "${AWS_REGION}",
+    "region": "${AWS_REGION}",
     "catalog": "AwsDataCatalog",
     "database": "dmarc_reports",
-    "workgroup": "dmarc-workgroup"
+    "workgroup": "dmarc-workgroup",
+    "outputLocation": "s3://${RESULTS_BUCKET}/"
   }
 }

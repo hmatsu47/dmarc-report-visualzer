@@ -46,14 +46,37 @@ def on_event(event, context):
         ws = grafana_client.describe_workspace(workspaceId=workspace_id)
         endpoint = f"https://{ws['workspace']['endpoint']}"
 
-        # データソース作成
-        ds_config = json.loads(datasource_json)
-        _grafana_api(endpoint, api_key, "POST", "/api/datasources", ds_config)
+        # Athenaプラグインをインストール（既にあれば409で無視）
+        _grafana_api(endpoint, api_key, "POST", "/api/plugins/grafana-athena-datasource/install")
 
-        # ダッシュボード作成
-        db_config = json.loads(dashboard_json)
+        # データソース作成または更新
+        ds_config = json.loads(datasource_json)
+        ds_uid = None
+
+        # 既存データソースを一覧から名前で検索
+        all_ds = _grafana_api(endpoint, api_key, "GET", "/api/datasources") or []
+        existing = next((ds for ds in all_ds if ds.get("name") == ds_config["name"]), None)
+        logger.info(json.dumps({"event": "datasource.search", "found": existing is not None, "total": len(all_ds)}))
+
+        if existing:
+            # 既存を更新（UIDは変えない）
+            ds_config["id"] = existing["id"]
+            ds_config["uid"] = existing["uid"]
+            _grafana_api(endpoint, api_key, "PUT", f"/api/datasources/{existing['id']}", ds_config)
+            ds_uid = existing["uid"]
+            logger.info(json.dumps({"event": "datasource.updated", "uid": ds_uid}))
+        else:
+            # 新規作成
+            resp = _grafana_api(endpoint, api_key, "POST", "/api/datasources", ds_config)
+            ds_uid = resp["datasource"]["uid"] if resp and "datasource" in resp else ds_config.get("uid")
+            logger.info(json.dumps({"event": "datasource.created", "uid": ds_uid}))
+
+        # ダッシュボード作成（データソースUIDを実際の値で置換）
+        db_config = json.loads(dashboard_json.replace("dmarc-athena-ds", ds_uid))
+        db_config["id"] = None
         payload = {"dashboard": db_config, "overwrite": True}
-        _grafana_api(endpoint, api_key, "POST", "/api/dashboards/db", payload)
+        db_resp = _grafana_api(endpoint, api_key, "POST", "/api/dashboards/db", payload)
+        logger.info(json.dumps({"event": "dashboard.posted", "response": str(db_resp)[:500]}))
 
     finally:
         # サービスアカウントクリーンアップ
@@ -78,10 +101,11 @@ def _grafana_api(endpoint, api_key, method, path, body=None):
 
     try:
         with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read())
+            body = resp.read()
+            return json.loads(body) if body else {}
     except urllib.error.HTTPError as e:
         err_body = e.read().decode()
         logger.warning(f"Grafana API {method} {path}: {e.code} {err_body}")
-        if e.code == 409:
+        if e.code in (409, 404):
             return None
         raise

@@ -60,6 +60,16 @@ export class CatalogConstruct extends Construct {
         parameters: {
           "classification": "parquet",
           "parquet.compression": "SNAPPY",
+          "projection.enabled": "true",
+          "projection.year.type": "integer",
+          "projection.year.range": "2024,2030",
+          "projection.month.type": "integer",
+          "projection.month.range": "1,12",
+          "projection.month.digits": "2",
+          "projection.day.type": "integer",
+          "projection.day.range": "1,31",
+          "projection.day.digits": "2",
+          "storage.location.template": `s3://${props.athenaBucket.bucketName}/dmarc-reports/year=\${year}/month=\${month}/day=\${day}`,
         },
         storageDescriptor: {
           location: `s3://${props.athenaBucket.bucketName}/dmarc-reports/`,
