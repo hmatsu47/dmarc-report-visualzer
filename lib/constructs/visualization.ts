@@ -92,6 +92,7 @@ export class VisualizationConstruct extends Construct {
       new iam.PolicyStatement({
         actions: [
           "grafana:DescribeWorkspace",
+          "grafana:ListWorkspaceServiceAccounts",
           "grafana:CreateWorkspaceServiceAccount",
           "grafana:CreateWorkspaceServiceAccountToken",
           "grafana:DeleteWorkspaceServiceAccount",
@@ -119,7 +120,7 @@ export class VisualizationConstruct extends Construct {
         WorkspaceId: this.workspace.ref,
         DatasourceJson: datasourceJson,
         DashboardJson: dashboardJson,
-        Version: "17",
+        Version: "18",
       },
     });
   }
