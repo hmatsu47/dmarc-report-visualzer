@@ -96,6 +96,8 @@ export class VisualizationConstruct extends Construct {
           "grafana:CreateWorkspaceServiceAccount",
           "grafana:CreateWorkspaceServiceAccountToken",
           "grafana:DeleteWorkspaceServiceAccount",
+          "grafana:ListWorkspaceServiceAccountTokens",
+          "grafana:DeleteWorkspaceServiceAccountToken",
         ],
         resources: ["*"],
       })
@@ -120,7 +122,7 @@ export class VisualizationConstruct extends Construct {
         WorkspaceId: this.workspace.ref,
         DatasourceJson: datasourceJson,
         DashboardJson: dashboardJson,
-        Version: "18",
+        Version: "19",
       },
     });
   }

@@ -45,6 +45,7 @@ SCHEMA = pa.schema([
     ("spf_result", pa.string()),
     ("policy_evaluated_dkim", pa.string()),
     ("policy_evaluated_spf", pa.string()),
+    ("header_from", pa.string()),
 ])
 
 DMARC_CONTENT_TYPES = {
@@ -184,6 +185,10 @@ def _parse_xml(xml_bytes):
         pe_dkim = _text(pe, "dkim") if pe is not None else None
         pe_spf = _text(pe, "spf") if pe is not None else None
 
+        # identifiers
+        identifiers = rec.find("identifiers")
+        header_from = _text(identifiers, "header_from") if identifiers is not None else None
+
         # auth_results
         auth = rec.find("auth_results")
         dkim_domain = dkim_result = dkim_selector = None
@@ -224,6 +229,7 @@ def _parse_xml(xml_bytes):
             "spf_result": spf_result,
             "policy_evaluated_dkim": pe_dkim,
             "policy_evaluated_spf": pe_spf,
+            "header_from": header_from,
         })
 
     logger.info(json.dumps({"event": "dmarc.xml.parsed", "report_id": report_id, "records_count": len(records)}))

@@ -33,42 +33,14 @@
       ]
     },
     {
-      "id": 2,
-      "title": "Top Source IPs",
-      "type": "table",
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 },
-      "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
-      "targets": [
-        {
-          "rawSQL": "SELECT source_ip, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='pass' OR policy_evaluated_spf='pass' THEN count ELSE 0 END) AS pass, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip ORDER BY total DESC LIMIT 50",
-          "format": "table",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "title": "Reports by Organization",
-      "type": "table",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 },
-      "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
-      "targets": [
-        {
-          "rawSQL": "SELECT org_name, COUNT(DISTINCT report_id) AS reports, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='pass' OR policy_evaluated_spf='pass' THEN count ELSE 0 END) AS pass, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY org_name ORDER BY total DESC",
-          "format": "table",
-          "refId": "A"
-        }
-      ]
-    },
-    {
       "id": 6,
-      "title": "Source IP x Organization (Top 10 Fail Rate)",
+      "title": "Source IP x Organization (Top 20 Fail Rate)",
       "type": "table",
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 18 },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
       "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
       "targets": [
         {
-          "rawSQL": "SELECT source_ip, org_name, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='pass' OR policy_evaluated_spf='pass' THEN count ELSE 0 END) AS dmarc_pass, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS dmarc_fail, SUM(CASE WHEN policy_evaluated_spf='pass' THEN count ELSE 0 END) AS spf_pass, SUM(CASE WHEN policy_evaluated_spf='fail' THEN count ELSE 0 END) AS spf_fail, SUM(CASE WHEN policy_evaluated_dkim='pass' THEN count ELSE 0 END) AS dkim_pass, SUM(CASE WHEN policy_evaluated_dkim='fail' THEN count ELSE 0 END) AS dkim_fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip, org_name HAVING SUM(count) > 0 ORDER BY CAST(SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS DOUBLE) / SUM(count) DESC LIMIT 10",
+          "rawSQL": "SELECT source_ip, org_name, domain, header_from, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS dmarc_fail, SUM(CASE WHEN policy_evaluated_spf='fail' THEN count ELSE 0 END) AS spf_fail, SUM(CASE WHEN policy_evaluated_dkim='fail' THEN count ELSE 0 END) AS dkim_fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip, org_name, domain, header_from HAVING SUM(count) > 0 ORDER BY CAST(SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS DOUBLE) / SUM(count) DESC LIMIT 20",
           "format": "table",
           "refId": "A"
         }
@@ -78,7 +50,7 @@
       "id": 4,
       "title": "SPF Results",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 30 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
       "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
       "fieldConfig": {
         "defaults": {},
@@ -103,7 +75,7 @@
       "id": 5,
       "title": "DKIM Results",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 30 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
       "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
       "fieldConfig": {
         "defaults": {},

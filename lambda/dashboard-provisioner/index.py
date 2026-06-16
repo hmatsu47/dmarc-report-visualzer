@@ -32,7 +32,8 @@ def on_event(event, context):
     # 既存のサービスアカウントを検索し、なければ作成
     sa_id = _find_or_create_sa(workspace_id)
 
-    # 既存トークンは使い回せないため新規発行（短命）
+    # 既存トークンは使い回せないため、既存を削除してから新規発行（短命）
+    _delete_existing_tokens(workspace_id, sa_id)
     token_resp = grafana_client.create_workspace_service_account_token(
         name="deploy-token",
         serviceAccountId=str(sa_id),
@@ -133,6 +134,23 @@ def _delete_sa_if_exists(workspace_id):
                 logger.info(json.dumps({"event": "sa.deleted", "id": sa["id"]}))
     except Exception as e:
         logger.warning(f"Failed to delete SA: {e}")
+
+
+def _delete_existing_tokens(workspace_id, sa_id):
+    """既存のサービスアカウントトークンを全削除する"""
+    try:
+        resp = grafana_client.list_workspace_service_account_tokens(
+            serviceAccountId=str(sa_id), workspaceId=workspace_id
+        )
+        for token in resp.get("serviceAccountTokens", []):
+            grafana_client.delete_workspace_service_account_token(
+                serviceAccountId=str(sa_id),
+                tokenId=str(token["id"]),
+                workspaceId=workspace_id,
+            )
+            logger.info(json.dumps({"event": "token.deleted", "id": token["id"], "name": token.get("name")}))
+    except Exception as e:
+        logger.warning(f"Failed to delete tokens: {e}")
 
 
 def _grafana_api(endpoint, api_key, method, path, body=None):

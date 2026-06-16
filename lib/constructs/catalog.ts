@@ -48,6 +48,7 @@ export class CatalogConstruct extends Construct {
       { name: "spf_result", type: "string" },
       { name: "policy_evaluated_dkim", type: "string" },
       { name: "policy_evaluated_spf", type: "string" },
+      { name: "header_from", type: "string" },
     ];
 
     this.table = new glue.CfnTable(this, "Table", {
