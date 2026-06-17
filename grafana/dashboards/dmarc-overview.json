@@ -21,12 +21,12 @@
       "options": { "legend": { "displayMode": "list", "placement": "bottom" } },
       "targets": [
         {
-          "rawSQL": "SELECT date_range_begin AS time, SUM(count) AS \"pass messages\" FROM dmarc_reports.dmarc_aggregate_reports WHERE (policy_evaluated_dkim='pass' OR policy_evaluated_spf='pass') AND date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY date_range_begin ORDER BY date_range_begin",
+          "rawSQL": "SELECT date_trunc('day', date_range_begin) AS time, SUM(count) AS \"pass messages\" FROM dmarc_reports.dmarc_aggregate_reports WHERE (policy_evaluated_dkim='pass' OR policy_evaluated_spf='pass') AND date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY date_trunc('day', date_range_begin) ORDER BY 1",
           "format": "table",
           "refId": "A"
         },
         {
-          "rawSQL": "SELECT date_range_begin AS time, SUM(count) AS \"fail messages\" FROM dmarc_reports.dmarc_aggregate_reports WHERE policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' AND date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY date_range_begin ORDER BY date_range_begin",
+          "rawSQL": "SELECT date_trunc('day', date_range_begin) AS time, SUM(count) AS \"fail messages\" FROM dmarc_reports.dmarc_aggregate_reports WHERE policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' AND date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY date_trunc('day', date_range_begin) ORDER BY 1",
           "format": "table",
           "refId": "B"
         }
