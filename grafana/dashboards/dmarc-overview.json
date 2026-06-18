@@ -34,13 +34,13 @@
     },
     {
       "id": 6,
-      "title": "Source IP x Organization (Top 20 Fail Rate)",
+      "title": "Source IP x Organization x Domain (Top 100 Fail Count)",
       "type": "table",
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
       "datasource": { "type": "grafana-athena-datasource", "uid": "dmarc-athena-ds" },
       "targets": [
         {
-          "rawSQL": "SELECT source_ip, org_name, domain, header_from, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS dmarc_fail, SUM(CASE WHEN policy_evaluated_spf='fail' THEN count ELSE 0 END) AS spf_fail, SUM(CASE WHEN policy_evaluated_dkim='fail' THEN count ELSE 0 END) AS dkim_fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip, org_name, domain, header_from HAVING SUM(count) > 0 ORDER BY CAST(SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS DOUBLE) / SUM(count) DESC LIMIT 20",
+          "rawSQL": "SELECT source_ip, org_name, domain, header_from, SUM(count) AS total, SUM(CASE WHEN policy_evaluated_dkim='fail' AND policy_evaluated_spf='fail' THEN count ELSE 0 END) AS dmarc_fail, SUM(CASE WHEN policy_evaluated_spf='fail' THEN count ELSE 0 END) AS spf_fail, SUM(CASE WHEN policy_evaluated_dkim='fail' THEN count ELSE 0 END) AS dkim_fail FROM dmarc_reports.dmarc_aggregate_reports WHERE date_range_begin >= from_iso8601_timestamp('${__from:date:iso}') AND date_range_begin <= from_iso8601_timestamp('${__to:date:iso}') GROUP BY source_ip, org_name, domain, header_from ORDER BY dmarc_fail DESC, spf_fail DESC, dkim_fail DESC, total DESC LIMIT 100",
           "format": "table",
           "refId": "A"
         }

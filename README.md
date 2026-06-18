@@ -120,13 +120,14 @@ Grafana Workspaceにユーザーを割り当て:
 5. 「Save & Test」をクリックし、「Data source is working」が表示されることを確認
 6. 左メニュー → **Dashboards** → 「DMARC Report Overview」を開く
 7. 各パネルのデータが表示されない場合は、パネルをEditで開き「Run query」を実行後に保存
+   - **補足**: Daily DMARC Resultsで「Run Query」を押した際、「Refresh」ボタンがリフレッシュ中（「Cancel」表記）にならない場合は、クエリセクションを一旦閉じるなどして「Run Query」ボタンを表示し直してから再度押してください
 
 ## ダッシュボード
 
 デプロイ後、Grafanaダッシュボードには以下のパネルが含まれます:
 
 - **Daily DMARC Results**: 日別のpass/fail推移
-- **Source IP x Organization (Top 20 Fail Rate)**: 送信元IP×組織×ドメイン×header_from別のfail集計
+- **Source IP x Organization x Domain (Top 100 Fail Count)**: 送信元IP×組織×ドメイン×header_from別のfail数上位100件
 - **SPF Results**: SPF認証結果の内訳
 - **DKIM Results**: DKIM認証結果の内訳
 
