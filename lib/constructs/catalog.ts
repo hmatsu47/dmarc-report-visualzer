@@ -39,6 +39,7 @@ export class CatalogConstruct extends Construct {
       { name: "policy_sp", type: "string" },
       { name: "policy_pct", type: "int" },
       { name: "source_ip", type: "string" },
+      { name: "reverse_dns", type: "string" },
       { name: "count", type: "bigint" },
       { name: "disposition", type: "string" },
       { name: "dkim_domain", type: "string" },

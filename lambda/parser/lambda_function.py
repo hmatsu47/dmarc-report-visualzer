@@ -7,6 +7,7 @@ import zipfile
 import io
 import json
 import logging
+import socket
 from datetime import datetime, timezone
 
 import boto3
@@ -36,6 +37,7 @@ SCHEMA = pa.schema([
     ("policy_sp", pa.string()),
     ("policy_pct", pa.int32()),
     ("source_ip", pa.string()),
+    ("reverse_dns", pa.string()),
     ("count", pa.int64()),
     ("disposition", pa.string()),
     ("dkim_domain", pa.string()),
@@ -178,6 +180,7 @@ def _parse_xml(xml_bytes):
             continue
 
         source_ip = _text(row_elem, "source_ip")
+        reverse_dns = _reverse_dns(source_ip)
         count = int(_text(row_elem, "count") or "0")
 
         pe = row_elem.find("policy_evaluated")
@@ -220,6 +223,7 @@ def _parse_xml(xml_bytes):
             "policy_sp": policy_sp,
             "policy_pct": policy_pct,
             "source_ip": source_ip,
+            "reverse_dns": reverse_dns,
             "count": count,
             "disposition": disposition,
             "dkim_domain": dkim_domain,
@@ -276,3 +280,18 @@ def _ts(parent, tag):
     if val is None:
         return None
     return datetime.fromtimestamp(int(val), tz=timezone.utc)
+
+
+def _reverse_dns(ip):
+    """IPアドレスの逆引き（タイムアウト2秒）"""
+    if not ip:
+        return None
+    old_timeout = socket.getdefaulttimeout()
+    try:
+        socket.setdefaulttimeout(2)
+        hostname, _, _ = socket.gethostbyaddr(ip)
+        return hostname
+    except (socket.herror, socket.gaierror, socket.timeout, OSError):
+        return None
+    finally:
+        socket.setdefaulttimeout(old_timeout)

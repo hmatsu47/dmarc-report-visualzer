@@ -39,7 +39,7 @@ export class ParserConstruct extends Construct {
       handler: "lambda_function.handler",
       code: lambda.Code.fromAsset(path.join(__dirname, "../../lambda/parser")),
       memorySize: 512,
-      timeout: cdk.Duration.seconds(60),
+      timeout: cdk.Duration.seconds(300),
       layers: [parserLayer],
       logRetention: logs.RetentionDays.ONE_MONTH,
       deadLetterQueue: this.deadLetterQueue,
