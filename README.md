@@ -127,7 +127,7 @@ Grafana Workspaceにユーザーを割り当て:
 デプロイ後、Grafanaダッシュボードには以下のパネルが含まれます:
 
 - **Daily DMARC Results**: 日別のpass/fail推移
-- **Source IP x Organization x Domain (Top 100 Fail Count)**: 送信元IP×組織×ドメイン×header_from別のfail数上位100件
+- **Source IP x Organization x Domain (Top 300 Fail Count)**: 送信元IP×組織×ドメイン×header_from別のfail数上位300件
 - **SPF Results**: SPF認証結果の内訳
 - **DKIM Results**: DKIM認証結果の内訳
 
