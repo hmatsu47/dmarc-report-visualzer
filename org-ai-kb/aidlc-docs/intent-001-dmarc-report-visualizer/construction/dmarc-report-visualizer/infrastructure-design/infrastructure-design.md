@@ -12,7 +12,7 @@
 | 6 | dmarc-report-parser | Lambda Function | ParserConstruct | メール解析・Parquet変換 |
 | 7 | dmarc-parser-layer | Lambda Layer | ParserConstruct | pyarrow + defusedxml |
 | 8 | DmarcParserRole | IAM Role | ParserConstruct | Lambda実行ロール |
-| 9 | DmarcDLQ | SQS Queue | ParserConstruct | 処理失敗メッセージ |
+| 9 | DmarcParserDLQ | SQS Queue | ParserConstruct | 処理失敗メッセージ |
 | 10 | dmarc_reports | Glue Database | CatalogConstruct | データカタログDB |
 | 11 | dmarc_aggregate_reports | Glue Table | CatalogConstruct | レポートテーブル定義 |
 | 12 | DmarcAthenaWorkgroup | Athena Workgroup | CatalogConstruct | クエリ実行環境 |
@@ -57,6 +57,7 @@
 - BlockPublicAccess: BLOCK_ALL
 - Encryption: SSE-S3
 - RemovalPolicy: DESTROY (クエリ結果は一時的)
+- AutoDeleteObjects: true
 - LifecycleRules:
   - Expiration: 7 days
 ```
@@ -83,15 +84,14 @@ ReceiptRule:
 #### dmarc-report-parser
 
 ```
-- Runtime: python3.12
+- Runtime: python3.14
 - Architecture: arm64
 - Memory: 512 MB
-- Timeout: 60 seconds
+- Timeout: 300 seconds
 - Handler: lambda_function.handler
 - Layers: [dmarc-parser-layer]
-- DeadLetterQueue: DmarcDLQ
+- DeadLetterQueue: DmarcParserDLQ
 - RetryAttempts: 2
-- MaxEventAge: 6 hours
 - LogRetention: 30 days
 - Environment:
     ATHENA_BUCKET: (athenaBucket.bucketName)
@@ -102,7 +102,7 @@ ReceiptRule:
 #### dmarc-parser-layer
 
 ```
-- CompatibleRuntimes: [python3.12]
+- CompatibleRuntimes: [python3.14]
 - CompatibleArchitectures: [arm64]
 - Contents: pyarrow, defusedxml
 - Build: Docker (amazonlinux:2023, pip install --target)
@@ -110,11 +110,10 @@ ReceiptRule:
 
 ### SQS (ParserConstruct)
 
-#### DmarcDLQ
+#### DmarcParserDLQ
 
 ```
 - MessageRetentionPeriod: 14 days (1209600 seconds)
-- VisibilityTimeout: 60 seconds
 - Encryption: SQS managed (SSE-SQS)
 ```
 
@@ -132,13 +131,26 @@ ReceiptRule:
 ```
 - DatabaseName: dmarc_reports
 - TableType: EXTERNAL_TABLE
+- Parameters:
+    classification: parquet
+    parquet.compression: SNAPPY
+    projection.enabled: "true"
+    projection.year.type: integer
+    projection.year.range: "2024,2030"
+    projection.month.type: integer
+    projection.month.range: "1,12"
+    projection.month.digits: "2"
+    projection.day.type: integer
+    projection.day.range: "1,31"
+    projection.day.digits: "2"
+    storage.location.template: "s3://<athena-bucket>/dmarc-reports/year=${year}/month=${month}/day=${day}"
 - StorageDescriptor:
     Location: s3://dmarc-athena-{ulid}/dmarc-reports/
     InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
     OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
     SerdeInfo:
       SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
-    Columns: (FR-7 全フィールド)
+    Columns: (全24フィールド)
 - PartitionKeys:
     - {Name: year, Type: string}
     - {Name: month, Type: string}
@@ -189,8 +201,9 @@ ReceiptRule:
 #### DashboardProvisioner (Custom Resource)
 
 ```
-- Runtime: python3.12
-- Timeout: 120 seconds
+- Runtime: python3.13
+- Architecture: arm64
+- Timeout: 300 seconds (5 minutes)
 - Purpose: Grafana HTTP API呼び出し (dashboard + datasource provisioning)
 - Inputs:
   - workspaceId (from GrafanaWorkspace)

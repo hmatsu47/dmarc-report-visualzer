@@ -103,6 +103,5 @@
 - **Implementation**: 環境依存値はすべてCDK context / CfnParameter で外部化
 - **Parameters**:
   - `receiveDomain` — SES受信ドメイン（必須）
-  - `identityCenterInstanceArn` — IAM Identity Center ARN（必須）
   - `glacierTransitionDays` — Glacier移行日数（デフォルト395）
   - `expirationDays` — 削除日数（デフォルト760）

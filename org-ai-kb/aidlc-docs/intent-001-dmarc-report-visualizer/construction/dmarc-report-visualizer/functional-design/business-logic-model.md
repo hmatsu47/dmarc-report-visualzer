@@ -75,8 +75,10 @@ for each <record> in XML:
         # policy_published（全レコード共通）
         domain, adkim, aspf, policy_p, policy_sp, policy_pct,
         # record固有
-        source_ip, count, disposition,
+        source_ip, reverse_dns, count, disposition,
         policy_evaluated_dkim, policy_evaluated_spf,
+        # identifiers
+        header_from,
         # auth_results（DKIM: 最初の結果を採用）
         dkim_domain, dkim_result, dkim_selector,
         # auth_results（SPF: 最初の結果を採用）
@@ -84,7 +86,9 @@ for each <record> in XML:
     }
 ```
 
-- `date_range_begin`/`date_range_end`: UNIXタイムスタンプ（秒）→ ISO8601文字列に変換
+- `date_range_begin`/`date_range_end`: UNIXタイムスタンプ（秒）→ Python datetimeオブジェクト（UTC）に変換し、PyArrow timestamp型に直接渡す
+- `reverse_dns`: source_ipの逆引きDNS結果（タイムアウト2秒、失敗時None）
+- `header_from`: identifiers/header_from要素から抽出（存在しない場合None）
 - `auth_results/dkim`が複数ある場合: 最初のエントリを採用（他はログに記録）
 - `auth_results/spf`が複数ある場合: 最初のエントリを採用
 - オプショナルフィールドが欠落している場合: `None`（Parquetではnull）
@@ -92,8 +96,9 @@ for each <record> in XML:
 ### 6. Parquet生成・S3出力
 
 - PyArrowを使用してParquet形式で書き込み（snappy圧縮）
-- 出力パス: `s3://<athena-bucket>/dmarc-reports/year=YYYY/month=MM/day=DD/{report_id}.parquet`
+- 出力パス: `s3://<athena-bucket>/dmarc-reports/year=YYYY/month=MM/day=DD/{safe_org}__{report_id}.parquet`
   - YYYY/MM/DD は `date_range_begin` から導出
+  - `{safe_org}`は`org_name`を`[^\w\-.]`→`_`でサニタイズした値
 - 1つのXMLファイルにつき1つのParquetファイルを生成
 - 空レコード（recordが0件）の場合はファイルを出力しない
 

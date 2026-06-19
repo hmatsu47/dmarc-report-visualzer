@@ -116,12 +116,11 @@ s3://<athena-bucket>/
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | receiveDomain | string | Yes | — | SES受信ドメイン |
-| identityCenterInstanceArn | string | Yes | — | IAM Identity Center ARN |
 | glacierTransitionDays | number | No | 395 | Glacier移行日数 |
 | expirationDays | number | No | 760 | オブジェクト削除日数 |
 
 - CDK Context (`cdk.json` or `-c` フラグ) で渡す
-- `receiveDomain` と `identityCenterInstanceArn` は未指定時にデプロイエラー（バリデーション）
+- `receiveDomain` は未指定時にデプロイエラー（バリデーション）
 
 ### 4.2 ULID バケット命名
 

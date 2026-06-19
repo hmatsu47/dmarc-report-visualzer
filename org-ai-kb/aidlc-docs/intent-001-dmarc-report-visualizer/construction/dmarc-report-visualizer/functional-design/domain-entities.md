@@ -49,6 +49,7 @@
 | policy_sp | string | Yes | サブドメインポリシー |
 | policy_pct | integer | No | ポリシー適用率 |
 | source_ip | string | No | 送信元IP |
+| reverse_dns | string | Yes | 送信元IPの逆引きDNS結果 |
 | count | integer | No | メッセージ数 |
 | disposition | string | No | 適用disposition |
 | dkim_domain | string | Yes | DKIM認証ドメイン |
@@ -58,6 +59,7 @@
 | spf_result | string | Yes | SPF認証結果 |
 | policy_evaluated_dkim | string | No | DMARC評価DKIM (pass/fail) |
 | policy_evaluated_spf | string | No | DMARC評価SPF (pass/fail) |
+| header_from | string | Yes | Fromヘッダーのドメイン |
 
 ## Parquet Schema (PyArrow)
 
@@ -76,6 +78,7 @@ schema = pa.schema([
     ("policy_sp", pa.string()),
     ("policy_pct", pa.int32()),
     ("source_ip", pa.string()),
+    ("reverse_dns", pa.string()),
     ("count", pa.int64()),
     ("disposition", pa.string()),
     ("dkim_domain", pa.string()),
@@ -85,5 +88,6 @@ schema = pa.schema([
     ("spf_result", pa.string()),
     ("policy_evaluated_dkim", pa.string()),
     ("policy_evaluated_spf", pa.string()),
+    ("header_from", pa.string()),
 ])
 ```

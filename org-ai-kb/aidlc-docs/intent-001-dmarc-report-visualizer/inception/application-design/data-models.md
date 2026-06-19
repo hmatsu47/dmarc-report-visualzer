@@ -19,6 +19,7 @@
   | policy_sp | string (nullable) | サブドメインポリシー |
   | policy_pct | integer | ポリシー適用率 (0-100) |
   | source_ip | string | 送信元IPアドレス |
+  | reverse_dns | string (nullable) | 送信元IPの逆引きDNS結果 |
   | count | integer | 当該IPからのメッセージ数 |
   | disposition | string | 適用されたdisposition (none/quarantine/reject) |
   | dkim_domain | string (nullable) | DKIM認証ドメイン |
@@ -28,6 +29,7 @@
   | spf_result | string (nullable) | SPF認証結果 (pass/fail/softfail/neutral/none) |
   | policy_evaluated_dkim | string | DMARC評価でのDKIM結果 (pass/fail) |
   | policy_evaluated_spf | string | DMARC評価でのSPF結果 (pass/fail) |
+  | header_from | string (nullable) | Fromヘッダーのドメイン |
 - **Relationships**: なし（単一フラットテーブル）
 - **Constraints**:
   - report_id + source_ip + dkim_domain + spf_domain の組み合わせで論理的に一意
@@ -42,4 +44,4 @@
 
 - **パーティションキー**: `year=YYYY/month=MM/day=DD`（date_range_beginから導出）
 - **ファイル形式**: Apache Parquet（snappy圧縮）
-- **ファイル命名**: `{report_id}_{source_ip_hash}.parquet`
+- **ファイル命名**: `{safe_org}__{report_id}.parquet`（org_nameをサニタイズして先頭に付加）

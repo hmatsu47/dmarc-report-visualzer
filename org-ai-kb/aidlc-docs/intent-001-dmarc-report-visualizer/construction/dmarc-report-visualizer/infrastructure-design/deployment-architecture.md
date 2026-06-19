@@ -15,7 +15,7 @@
                     │                               ▼                      │
                     │                    ┌────────────────────┐            │
                     │                    │  Lambda (Parser)   │            │
-                    │                    │  Python 3.12/arm64 │            │
+                    │                    │  Python 3.14/arm64 │            │
                     │                    │  + Layer (pyarrow) │            │
                     │                    └─────┬────────┬─────┘            │
                     │                          │        │                   │
@@ -56,7 +56,7 @@
 ```
 Developer workstation
     │
-    │ cdk deploy -c receiveDomain=... -c identityCenterInstanceArn=...
+    │ cdk deploy -c receiveDomain=...
     │
     ▼
 CloudFormation Stack: DmarcReportVisualizerStack

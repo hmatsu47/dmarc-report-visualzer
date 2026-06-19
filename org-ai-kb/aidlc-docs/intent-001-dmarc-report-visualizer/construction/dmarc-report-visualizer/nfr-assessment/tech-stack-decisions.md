@@ -11,10 +11,11 @@
 
 | Layer | Choice | Rationale |
 |-------|--------|-----------|
-| Lambda Runtime | Python 3.12 | 参考コードとの一貫性、メール/XMLライブラリ充実 |
+| Lambda Runtime (Parser) | Python 3.14 | 最新安定版、メール/XMLライブラリ充実 |
+| Lambda Runtime (Provisioner) | Python 3.13 | Grafana API呼び出し用、安定版 |
 | Lambda Architecture | arm64 | コスト20%削減、Python完全対応 |
 | Lambda Memory | 512MB | Parquet変換のPyArrowメモリ使用に十分 |
-| Lambda Timeout | 60秒 | NFR-1（30秒）に対しマージン |
+| Lambda Timeout (Parser) | 300秒 | reverse_dns逆引き処理のバッファ含む |
 
 ## Data Processing Libraries
 

@@ -45,16 +45,13 @@ DmarcReportVisualizerApp (App)
 ```
 layer/
   python/
-    lib/
-      python3.12/
-        site-packages/
-          pyarrow/
-          defusedxml/
+    pyarrow/
+    defusedxml/
 ```
 
-- ビルド: Docker (amazonlinux:2023 + pip install) でarm64向けにコンパイル
-- サイズ見積もり: ~60MB (pyarrow ~55MB + defusedxml ~100KB)
+- ビルド: Docker (arm64向け) でコンパイル
 - CDK: `lambda.LayerVersion` で管理
+- CompatibleRuntimes: [python3.14]
 
 ## Grafanaダッシュボードプロビジョニング
 
@@ -67,8 +64,9 @@ CustomResource (CR_GRAFANA_DASHBOARD)
   └── onDelete: Grafana HTTP API DELETE /api/dashboards/uid/<uid>
 ```
 
-- Custom ResourceのLambdaがGrafana API keyを使用してダッシュボードをプロビジョニング
-- API keyはGrafana WorkspaceのService Account Token（CDKで作成）
+- Runtime: python3.13 / arm64
+- Timeout: 300 seconds (5 minutes)
+- Custom ResourceのLambdaがGrafana Service Account Tokenを使用してダッシュボードをプロビジョニング
 - ダッシュボードJSONは`grafana/dashboards/`ディレクトリに格納
 
 ### リポジトリ内ダッシュボード配置

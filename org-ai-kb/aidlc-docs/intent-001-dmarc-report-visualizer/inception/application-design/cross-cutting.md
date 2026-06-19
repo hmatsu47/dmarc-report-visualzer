@@ -22,7 +22,8 @@
 ## Authorisation Model
 
 - **認証**: IAM Identity Center（Grafana Workspace）
-- **認可**: 全ユーザー同一権限（Editor）。ロール分離なし
+- **認可**: ユーザーはAdmin権限で割り当て（データソース設定・ダッシュボード編集に必要）
+- **Service Account**: ADMIN権限（ダッシュボードプロビジョニング用Custom Resourceが使用）
 - **内部サービス間**: IAMロールベース（最小権限原則）
   - Lambda → S3: GetObject（受信バケット）、PutObject（Athenaバケット）
   - Grafana → Athena: athena:StartQueryExecution, athena:GetQueryResults
